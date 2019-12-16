@@ -25,15 +25,22 @@ import com.dueeeke.videocontroller.component.TitleView;
 import com.dueeeke.videocontroller.component.VodControlView;
 import com.dueeeke.videoplayer.player.AndroidMediaPlayerFactory;
 import com.dueeeke.videoplayer.player.VideoView;
+import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.listener.OnFileDownloadCompleteListener;
+import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.hao.jsthor.R;
 import com.hao.jsthor.activity.FileInfoActivity;
 import com.hao.jsthor.adapter.FileAdapter;
 import com.hao.jsthor.bean.FileBean;
+import com.hao.jsthor.event.WebEvent;
 import com.hao.jsthor.network.NetManager;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +65,11 @@ public class FileFragment extends androidx.fragment.app.Fragment {
     private int page = 1;
     private LinearLayout lay_video,lay_rec;
     private FileBean body;
+    private int refreshStatus = 1;
+    private LinearLayout layPDF;
+    private PDFView pdfView;
+    private LinearLayout layImage;
+    private ImageView image;
 
     @Nullable
     @Override
@@ -71,7 +83,16 @@ public class FileFragment extends androidx.fragment.app.Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new FileAdapter(getActivity(),data);
         recyclerView.setAdapter(adapter);
+
+        layPDF = view.findViewById(R.id.lay_pdf);
+        pdfView = view.findViewById(R.id.pdfView);
+
+        layImage = view.findViewById(R.id.lay_Image);
+        image = view.findViewById(R.id.image);
+
+
         initListener();
+        refreshStatus = 1;
         request();
         return view;
     }
@@ -90,8 +111,7 @@ public class FileFragment extends androidx.fragment.app.Fragment {
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
-                page = 1;
-                data.clear();
+                refreshStatus = 1;
                 request();
                 refreshlayout.finishRefresh();
             }
@@ -99,6 +119,7 @@ public class FileFragment extends androidx.fragment.app.Fragment {
         refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(RefreshLayout refreshlayout) {
+                refreshStatus = 2;
                 request();
                 refreshlayout.finishLoadMore();
             }
@@ -107,6 +128,13 @@ public class FileFragment extends androidx.fragment.app.Fragment {
 
     //请求接口
     private void request() {
+        if(refreshStatus == 1){
+            page = 1;
+            data.clear();
+            adapter.notifyDataSetChanged();
+        }else{
+
+        }
         Map<String,Object> map = new HashMap<>();
         map.put("pageNo",page);
         map.put("pageSize",20);
@@ -117,26 +145,11 @@ public class FileFragment extends androidx.fragment.app.Fragment {
                     body = response.body();
                     if(body.getCode() == 200){
                         int row = body.getData().getTotalRow();
-                         if(row != 1){
-                            String file_path = body.getData().getList().get(0).getFile_path();
-                            if(file_path.endsWith(".mp4") || file_path.endsWith(".avi")|| file_path.endsWith(".wmv")){
-                                lay_rec.setVisibility(View.GONE);
-                                lay_video.setVisibility(View.VISIBLE);
-                                url = body.getResUrl()+ body.getData().getList().get(0).getFile_path();
-                                Log.e("video",url);
-                                initVideo();
-                            }
+                        if(row == 1){
+                            initRowOne();
                         }else{
-                             lay_rec.setVisibility(View.VISIBLE);
-                             lay_video.setVisibility(View.GONE);
-                             data.addAll(body.getData().getList());
-                             adapter.notifyDataSetChanged();
-                             if(body.getData().getList().size() < 20){
-                                 refreshLayout.setEnableLoadMore(false);
-                             }else{
-                                 page++;
-                             }
-                         }
+                            initRowMore();
+                        }
                     }else {
                         Toast.makeText(getContext(), body.getMess(),Toast.LENGTH_SHORT).show();
                     }
@@ -149,6 +162,76 @@ public class FileFragment extends androidx.fragment.app.Fragment {
                 Toast.makeText(getContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void initRowMore() {
+        lay_rec.setVisibility(View.VISIBLE);
+        lay_video.setVisibility(View.GONE);
+        data.addAll(body.getData().getList());
+        adapter.notifyDataSetChanged();
+        if(body.getData().getList().size() < 20){
+            refreshLayout.setEnableLoadMore(false);
+        }else{
+            page++;
+            refreshLayout.setEnableLoadMore(true);
+        }
+    }
+    /**
+    * @description 一条数据
+    * @date: 2019/12/16 16:41
+    * @author: sunhao
+    */
+    private void initRowOne() {
+
+        String file_path = body.getData().getList().get(0).getFile_path();
+        url = body.getResUrl()+ body.getData().getList().get(0).getFile_path();
+        if(file_path.endsWith(".mp4") || file_path.endsWith(".avi")|| file_path.endsWith(".wmv")){
+            lay_rec.setVisibility(View.GONE);
+            lay_video.setVisibility(View.VISIBLE);
+            layPDF.setVisibility(View.GONE);
+            layImage.setVisibility(View.GONE);
+            EventBus.getDefault().post(new WebEvent());
+            Log.e("video",url);
+            initVideo();
+        }else if(file_path.endsWith(".pdf")){
+            lay_rec.setVisibility(View.GONE);
+            lay_video.setVisibility(View.GONE);
+            layPDF.setVisibility(View.VISIBLE);
+            layImage.setVisibility(View.GONE);
+            initpdf();
+        }else if(file_path.endsWith(".jpg") || file_path.endsWith(".png")){
+            lay_rec.setVisibility(View.GONE);
+            lay_video.setVisibility(View.GONE);
+            layPDF.setVisibility(View.GONE);
+            layImage.setVisibility(View.VISIBLE);
+            initImage();
+        }
+    }
+
+    private void initImage() {
+        Glide.with(getActivity()).load(url).into(image);
+    }
+
+    private void initpdf() {
+        pdfView.fromUrl(url)
+                .enableSwipe(true) // allows to block changing pages using swipe
+                .defaultPage(0)
+                .onLoad(new OnLoadCompleteListener() {
+                    @Override
+                    public void loadComplete(int nbPages) {
+
+                    }
+                }) // called after document is loaded and starts to be rendered
+//                .onPageChange(this)
+                .swipeHorizontal(false)
+                .enableAntialiasing(true)
+                .onFileDownload(new OnFileDownloadCompleteListener() {
+                    @Override
+                    public void onDownloadComplete(File file) {
+
+                    }
+                })
+                .loadFromUrl();
     }
 
     @Override
@@ -232,6 +315,7 @@ public class FileFragment extends androidx.fragment.app.Fragment {
         super.onResume();
         if (mVideoView != null) {
             mVideoView.resume();
+            Log.e("tag","video resume");
         }
     }
 
@@ -241,6 +325,7 @@ public class FileFragment extends androidx.fragment.app.Fragment {
         super.onPause();
         if (mVideoView != null) {
             mVideoView.pause();
+            Log.e("tag","video pause");
         }
     }
 
@@ -249,7 +334,12 @@ public class FileFragment extends androidx.fragment.app.Fragment {
         super.onDestroy();
         if (mVideoView != null) {
             mVideoView.release();
+            Log.e("tag","video release");
         }
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        Log.e("taa","visible"+hidden);
+    }
 }

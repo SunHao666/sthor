@@ -182,7 +182,6 @@ public class FileInfoActivity extends AppCompatActivity {
             finish();
             return;
         }
-        
         if(url.endsWith(".pdf")){
             lay_video.setVisibility(View.GONE);
             lay_webview.setVisibility(View.VISIBLE);
@@ -192,6 +191,5 @@ public class FileInfoActivity extends AppCompatActivity {
             lay_webview.setVisibility(View.GONE);
             initVideo();
         }
-
     }
 }

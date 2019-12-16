@@ -4,17 +4,10 @@
     android:background="@mipmap/bg"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/top"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_50"
-        android:background="@mipmap/top_logo"
-        />
     <LinearLayout
         android:id="@+id/lay_rec"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/top"
         android:layout_marginTop="@dimen/dp_7"
         android:layout_marginBottom="@dimen/dp_7"
         android:layout_marginRight="@dimen/dp_30"
@@ -44,6 +37,7 @@
         android:layout_marginBottom="@dimen/dp_7"
         android:layout_marginRight="@dimen/dp_30"
         android:layout_marginLeft="@dimen/dp_30"
+        android:visibility="gone"
         >
         <com.dueeeke.videoplayer.player.VideoView
             android:id="@+id/videoview"
@@ -51,5 +45,42 @@
             android:layout_height="match_parent"
             android:layout_margin="@dimen/dp_20"
             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lay_pdf"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/shipin_biankuang"
+        android:layout_below="@id/top"
+        android:layout_marginTop="@dimen/dp_7"
+        android:layout_marginBottom="@dimen/dp_7"
+        android:layout_marginRight="@dimen/dp_30"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:visibility="gone"
+        >
+        <com.github.barteksc.pdfviewer.PDFView
+            android:id="@+id/pdfView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lay_Image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/shipin_biankuang"
+        android:layout_below="@id/top"
+        android:layout_marginTop="@dimen/dp_7"
+        android:layout_marginBottom="@dimen/dp_7"
+        android:layout_marginRight="@dimen/dp_30"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:visibility="gone"
+        >
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="center"/>
     </LinearLayout>
 </RelativeLayout>

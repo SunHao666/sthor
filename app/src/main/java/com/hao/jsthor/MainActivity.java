@@ -7,11 +7,17 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.hao.jsthor.event.WebEvent;
 import com.hao.jsthor.fragment.FileFragment;
 import com.hao.jsthor.fragment.WebFragment;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,18 +34,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView btn_right;
     //当前显示的fragment
     private static final String CURRENT_FRAGMENT = "STATE_FRAGMENT_SHOW";
+    private ImageView top;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView(savedInstanceState);
-
+        EventBus.getDefault().register(this);
     }
 
     private void initView(Bundle savedInstanceState) {
         btn_left = findViewById(R.id.btn_left);
         btn_right = findViewById(R.id.btn_right);
         layBottom = findViewById(R.id.lay_bottom);
+        top = findViewById(R.id.top);
         btn_left.setOnClickListener(this);
         btn_right.setOnClickListener(this);
         fragmentManager = getSupportFragmentManager();
@@ -88,7 +97,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_right:
                 layBottom.setBackgroundResource(R.mipmap.bottom_nav_right);
                 currentIndex = 1;
-
+                layBottom.setVisibility(View.GONE);
+                top.setVisibility(View.GONE);
                 break;
 
         }
@@ -143,5 +153,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //把当前显示的fragment记录下来
         currentFragment = fragments.get(currentIndex);
 
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGetMessage(WebEvent message) {
+
+        layBottom.setVisibility(View.GONE);
+        top.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(layBottom.getVisibility() == View.GONE){
+            layBottom.setVisibility(View.VISIBLE);
+            top.setVisibility(View.VISIBLE);
+            return;
+        }
+        super.onBackPressed();
     }
 }

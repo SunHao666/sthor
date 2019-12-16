@@ -19,6 +19,8 @@ import com.hao.jsthor.bean.WebContentBean;
 import com.hao.jsthor.network.NetManager;
 import com.mingle.widget.LoadingView;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.HashMap;
 import java.util.Map;
 

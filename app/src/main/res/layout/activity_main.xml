@@ -6,7 +6,11 @@
     android:layout_height="match_parent"
     android:background="@mipmap/bg"
     tools:context=".MainActivity">
-
+    <ImageView
+        android:id="@+id/top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        android:background="@mipmap/top_logo" />
     <LinearLayout
         android:id="@+id/lay_bottom"
         android:layout_width="match_parent"
@@ -45,5 +49,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/lay_bottom"
+        android:layout_below="@id/top"
         />
 </RelativeLayout>
