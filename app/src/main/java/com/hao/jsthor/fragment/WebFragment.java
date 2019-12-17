@@ -102,6 +102,12 @@ public class WebFragment extends androidx.fragment.app.Fragment {
                 view.loadUrl(url);
                 return true;
             }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                progressBar.setVisibility(View.GONE);
+            }
         });
     }
 }

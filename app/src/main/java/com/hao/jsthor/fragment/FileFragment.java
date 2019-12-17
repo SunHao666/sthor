@@ -341,5 +341,17 @@ public class FileFragment extends androidx.fragment.app.Fragment {
     @Override
     public void onHiddenChanged(boolean hidden) {
         Log.e("taa","visible"+hidden);
+        if(hidden){
+            if (mVideoView != null) {
+                mVideoView.pause();
+                Log.e("tag","video pause");
+            }
+        }else{
+            if (mVideoView != null) {
+                mVideoView.resume();
+                Log.e("tag","video resume");
+            }
+
+        }
     }
 }

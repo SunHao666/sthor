@@ -1,6 +1,7 @@
 package com.hao.jsthor.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
@@ -41,6 +42,9 @@ public class FileInfoActivity extends AppCompatActivity {
     private RelativeLayout lay_webview;
     private com.dueeeke.videoplayer.player.VideoView mVideoView;
     private String url;
+    private LinearLayout lay_image;
+    private ImageView image;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +61,9 @@ public class FileInfoActivity extends AppCompatActivity {
         lay_webview = findViewById(R.id.lay_webview);
 
         mVideoView = findViewById(R.id.videoview);
+
+        lay_image = findViewById(R.id.lay_Image);
+        image = findViewById(R.id.image);
     }
 
     private void initVideo() {
@@ -155,13 +162,14 @@ public class FileInfoActivity extends AppCompatActivity {
     }
 
     private void initpdf() {
+        showLoading();
         pdfView.fromUrl(url)
                 .enableSwipe(true) // allows to block changing pages using swipe
                 .defaultPage(0)
                 .onLoad(new OnLoadCompleteListener() {
                     @Override
                     public void loadComplete(int nbPages) {
-
+                        dissLoading();
                     }
                 }) // called after document is loaded and starts to be rendered
 //                .onPageChange(this)
@@ -173,7 +181,7 @@ public class FileInfoActivity extends AppCompatActivity {
 
                     }
                 })
-                .loadFromUrl();;
+                .loadFromUrl();
     }
 
     private void openFile() {
@@ -185,11 +193,30 @@ public class FileInfoActivity extends AppCompatActivity {
         if(url.endsWith(".pdf")){
             lay_video.setVisibility(View.GONE);
             lay_webview.setVisibility(View.VISIBLE);
+            lay_image.setVisibility(View.GONE);
             initpdf();
         }else if(url.endsWith(".mp4") || url.endsWith(".avi") || url.endsWith(".wmv")){
             lay_video.setVisibility(View.VISIBLE);
             lay_webview.setVisibility(View.GONE);
+            lay_image.setVisibility(View.GONE);
             initVideo();
+        }else if(url.endsWith(".jpg") || url.endsWith("png")){
+            lay_video.setVisibility(View.GONE);
+            lay_webview.setVisibility(View.GONE);
+            lay_image.setVisibility(View.VISIBLE);
+            Glide.with(this).load(url).into(image);
+        }
+    }
+
+    public void showLoading(){
+        dialog = new Dialog(this, R.style.loading_dialog);
+        dialog.setContentView(R.layout.mpro);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+    }
+    public void dissLoading(){
+        if(dialog != null && dialog.isShowing()){
+            dialog.dismiss();
         }
     }
 }
