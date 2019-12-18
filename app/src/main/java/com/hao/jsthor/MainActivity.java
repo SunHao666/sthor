@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_left:
                 layBottom.setBackgroundResource(R.mipmap.bottom_nav_left);
                 currentIndex = 0;
-
+                layBottom.setVisibility(View.GONE);
+                top.setVisibility(View.GONE);
                 break;
             case R.id.btn_right:
                 layBottom.setBackgroundResource(R.mipmap.bottom_nav_right);
